@@ -17,7 +17,7 @@ if ($conn->connect_error) {
 $conn->set_charset("utf8mb4");
 
 // Maintenance mode (set to true to enable maintenance mode)
-$maintenance_mode = true;
+$maintenance_mode = false;
 
 // Start session if not already started
 if (session_status() == PHP_SESSION_NONE) {
