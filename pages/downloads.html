@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Downloads - APK Modders</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .downloads-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 15px;
+            border: 1px solid #8a2be2;
+            backdrop-filter: blur(5px);
+        }
+
+        .search-bar {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .search-bar input {
+            width: 100%;
+            max-width: 500px;
+            padding: 1rem;
+            border-radius: 50px;
+            border: 2px solid #8a2be2;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-bar input:focus {
+            border-color: #00ffff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+        }
+
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .app-card {
+            background: rgba(30, 30, 60, 0.7);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #8a2be2;
+            transition: all 0.3s ease;
+        }
+
+        .app-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(138, 43, 226, 0.3);
+        }
+
+        .app-image {
+            width: 100%;
+            height: 150px;
+            background: #1a1a3a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #8a2be2;
+        }
+
+        .app-info {
+            padding: 1.5rem;
+        }
+
+        .app-info h3 {
+            color: #00ffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .app-meta {
+            display: flex;
+            justify-content: space-between;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .download-btn {
+            display: block;
+            width: 100%;
+            padding: 0.7rem;
+            background: linear-gradient(45deg, #ff00ff, #00ffff);
+            color: white;
+            text-align: center;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .category-filter {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .category-btn {
+            padding: 0.5rem 1.5rem;
+            background: rgba(138, 43, 226, 0.2);
+            border: 1px solid #8a2be2;
+            color: white;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-btn.active,
+        .category-btn:hover {
+            background: linear-gradient(45deg, #ff00ff, #00ffff);
+            color: #0a0a1a;
+        }
+
+        .no-results {
+            text-align: center;
+            grid-column: 1 / -1;
+            padding: 3rem 0;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="moon"></div>
+
+    <header>
+        <div class="header-top">
+            <h1><a href="../index.html">APK Modders</a></h1>
+            <div class="language-switcher">
+                <button class="lang-btn" data-lang="en">EN</button>
+                <button class="lang-btn" data-lang="de">DE</button>
+                <button class="lang-btn" data-lang="ru">RU</button>
+            </div>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#" class="active">Downloads</a></li>
+                <li><a href="tutorials.html">Tutorials</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <div class="downloads-container">
+            <h2>Available Mods</h2>
+            
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search mods...">
+            </div>
+
+            <div class="category-filter">
+                <button class="category-btn active" data-category="all">All</button>
+                <button class="category-btn" data-category="games">Games</button>
+                <button class="category-btn" data-category="apps">Apps</button>
+                <button class="category-btn" data-category="tools">Tools</button>
+            </div>
+
+            <div class="app-grid" id="appGrid">
+                <!-- Apps will be loaded here by JavaScript -->
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 APK Modders. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Sample app data
+        const apps = [
+            {
+                id: 1,
+                name: 'Game Mod 1',
+                version: 'v2.5.1',
+                size: '85 MB',
+                category: 'games',
+                icon: '🎮',
+                description: 'Unlimited coins and gems'
+            },
+            {
+                id: 2,
+                name: 'Premium App',
+                version: 'v3.1.0',
+                size: '45 MB',
+                category: 'apps',
+                icon: '📱',
+                description: 'All premium features unlocked'
+            },
+            {
+                id: 3,
+                name: 'Game Mod 2',
+                version: 'v1.8.3',
+                size: '120 MB',
+                category: 'games',
+                icon: '🎯',
+                description: 'Unlimited lives and boosters'
+            },
+            {
+                id: 4,
+                name: 'Tool Kit',
+                version: 'v5.2.0',
+                size: '30 MB',
+                category: 'tools',
+                icon: '🔧',
+                description: 'Essential tools for modding'
+            },
+            {
+                id: 5,
+                name: 'Streaming App',
+                version: 'v4.7.2',
+                size: '65 MB',
+                category: 'apps',
+                icon: '🎬',
+                description: 'Ad-free streaming experience'
+            },
+            {
+                id: 6,
+                name: 'Game Mod 3',
+                version: 'v2.0.0',
+                size: '210 MB',
+                category: 'games',
+                icon: '🏎️',
+                description: 'Unlimited money and cars'
+            }
+        ];
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            displayApps(apps);
+            setupEventListeners();
+        });
+
+        // Display apps in the grid
+        function displayApps(appsToShow) {
+            const appGrid = document.getElementById('appGrid');
+            
+            if (appsToShow.length === 0) {
+                appGrid.innerHTML = '<div class="no-results">No mods found matching your search.</div>';
+                return;
+            }
+
+            appGrid.innerHTML = appsToShow.map(app => `
+                <div class="app-card" data-category="${app.category}">
+                    <div class="app-image">${app.icon}</div>
+                    <div class="app-info">
+                        <h3>${app.name}</h3>
+                        <p>${app.description}</p>
+                        <div class="app-meta">
+                            <span>${app.version}</span>
+                            <span>${app.size}</span>
+                        </div>
+                        <a href="#" class="download-btn" data-app-id="${app.id}">Download</a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Search functionality
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', filterApps);
+
+            // Category filter buttons
+            const categoryBtns = document.querySelectorAll('.category-btn');
+            categoryBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    categoryBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    filterApps();
+                });
+            });
+
+            // Download button click
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('download-btn')) {
+                    e.preventDefault();
+                    const appId = e.target.getAttribute('data-app-id');
+                    alert(`Downloading app with ID: ${appId}`);
+                    // In a real app, you would handle the download here
+                }
+            });
+        }
+
+        // Filter apps based on search and category
+        function filterApps() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const activeCategory = document.querySelector('.category-btn.active').getAttribute('data-category');
+            
+            let filteredApps = [...apps];
+            
+            // Filter by search term
+            if (searchTerm) {
+                filteredApps = filteredApps.filter(app => 
+                    app.name.toLowerCase().includes(searchTerm) || 
+                    app.description.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            // Filter by category
+            if (activeCategory !== 'all') {
+                filteredApps = filteredApps.filter(app => app.category === activeCategory);
+            }
+            
+            displayApps(filteredApps);
+        }
+    </script>
+</body>
+</html>

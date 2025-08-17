@@ -1,0 +1,487 @@
+<?php
+require_once 'header.php';
+?>
+<title>APK Modders - Home</title>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: #0a0a1a;
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Moon Styling */
+        .moon {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100vmax;
+            height: 100vmax;
+            background: radial-gradient(circle, #1a1a3a 0%, #0a0a1a 70%);
+            border-radius: 50%;
+            z-index: -1;
+            box-shadow: 0 0 100px rgba(138, 43, 226, 0.3);
+            animation: pulse 8s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 100px rgba(138, 43, 226, 0.3); }
+            100% { box-shadow: 0 0 150px rgba(138, 43, 226, 0.5); }
+        }
+
+        /* Header Styling */
+        header {
+            padding: 1rem 2rem;
+            background: rgba(10, 10, 26, 0.7);
+            backdrop-filter: blur(10px);
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .btn-login {
+            background: transparent;
+            color: #8a2be2;
+            border-color: #8a2be2;
+        }
+
+        .btn-login:hover {
+            background: rgba(138, 43, 226, 0.1);
+        }
+
+        .btn-register {
+            background: #8a2be2;
+            color: white;
+        }
+
+        .btn-register:hover {
+            background: #7b1fa2;
+        }
+        
+        header {
+            z-index: 1;
+            border-bottom: 1px solid #8a2be2;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(90deg, #ff00ff, #00ffff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+        }
+
+        nav ul {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background: linear-gradient(90deg, #ff00ff, #00ffff);
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 5rem 0;
+        }
+
+        .hero h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: linear-gradient(45deg, #ff00ff, #00ffff);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            margin-top: 2rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+            z-index: -1;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Features Section */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 5rem 0;
+        }
+
+        .feature-card {
+            background: rgba(20, 20, 40, 0.7);
+            padding: 2rem;
+            border-radius: 10px;
+            border: 1px solid #8a2be2;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(138, 43, 226, 0.3);
+        }
+
+        .feature-card h3 {
+            color: #00ffff;
+            margin-bottom: 1rem;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 5rem;
+            border-top: 1px solid #8a2be2;
+            background: rgba(10, 10, 26, 0.7);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Moon Background -->
+    <div class="moon"></div>
+
+    <!-- Header -->
+    <header>
+        <div class="header-top">
+            <h1>APK Modders</h1>
+            <nav>
+                <ul>
+                    <li><a href="#home" class="active">Home</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="pages/downloads.html">Downloads</a></li>
+                    <li><a href="pages/tutorials.html">Tutorials</a></li>
+                    <li><a href="pages/contact.html">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="auth-buttons">
+                <a href="login.php" class="btn btn-login">Login</a>
+                <a href="register.php" class="btn btn-register">Register</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <section class="hero" id="home">
+            <h2>Welcome to APK Modders</h2>
+            <p>Your ultimate destination for modified APKs and game hacks</p>
+            <a href="#downloads" class="cta-button">Get Started</a>
+        </section>
+
+        <section id="features">
+            <h2 style="text-align: center; margin-bottom: 2rem;">Our Features</h2>
+            <div class="features">
+                <div class="feature-card">
+                    <h3>Premium Unlocked</h3>
+                    <p>Access premium features for free with our modified APKs.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Ad-Free Experience</h3>
+                    <p>Enjoy your favorite apps without annoying advertisements.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Regular Updates</h3>
+                    <p>We keep our mods updated with the latest versions.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 APK Modders. All rights reserved.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Language translations
+        const translations = {
+            en: {
+                welcome: "Welcome to APK Modders",
+                tagline: "Your ultimate destination for modified APKs and game hacks",
+                getStarted: "Get Started",
+                features: "Our Features",
+                premium: "Premium Unlocked",
+                premiumDesc: "Access premium features for free with our modified APKs.",
+                adfree: "Ad-Free Experience",
+                adfreeDesc: "Enjoy your favorite apps without annoying advertisements.",
+                updates: "Regular Updates",
+                updatesDesc: "We keep our mods updated with the latest versions.",
+                navHome: "Home",
+                navFeatures: "Features",
+                navDownloads: "Downloads",
+                navTutorials: "Tutorials",
+                navContact: "Contact"
+            },
+            de: {
+                welcome: "Willkommen bei APK Modders",
+                tagline: "Ihr ultimativer Ort für modifizierte APKs und Game-Hacks",
+                getStarted: "Loslegen",
+                features: "Unsere Funktionen",
+                premium: "Premium freigeschaltet",
+                premiumDesc: "Greifen Sie mit unseren modifizierten APKs kostenlos auf Premium-Funktionen zu.",
+                adfree: "Werbefreies Erlebnis",
+                adfreeDesc: "Genießen Sie Ihre Lieblings-Apps ohne störende Werbung.",
+                updates: "Regelmäßige Updates",
+                updatesDesc: "Wir halten unsere Mods mit den neuesten Versionen aktuell.",
+                navHome: "Startseite",
+                navFeatures: "Funktionen",
+                navDownloads: "Downloads",
+                navTutorials: "Anleitungen",
+                navContact: "Kontakt"
+            },
+            ru: {
+                welcome: "Добро пожаловать в APK Modders",
+                tagline: "Ваш лучший источник модифицированных APK и игровых читов",
+                getStarted: "Начать",
+                features: "Наши возможности",
+                premium: "Премиум разблокирован",
+                premiumDesc: "Доступ к премиум-функциям бесплатно с нашими модифицированными APK.",
+                adfree: "Без рекламы",
+                adfreeDesc: "Наслаждайтесь любимыми приложениями без назойливой рекламы.",
+                updates: "Регулярные обновления",
+                updatesDesc: "Мы регулярно обновляем наши моды до последних версий.",
+                navHome: "Главная",
+                navFeatures: "Функции",
+                navDownloads: "Загрузки",
+                navTutorials: "Гайды",
+                navContact: "Контакты"
+            }
+        };
+
+        // Set default language
+        let currentLang = localStorage.getItem('language') || 'en';
+
+        // Function to update content based on language
+        function updateContent() {
+            const lang = translations[currentLang];
+            
+            // Update navigation
+            document.querySelector('a[href="index.html"]').textContent = lang.navHome;
+            document.querySelector('a[href="#features"]').textContent = lang.navFeatures;
+            document.querySelector('a[href="pages/downloads.html"]').textContent = lang.navDownloads;
+            document.querySelector('a[href="pages/tutorials.html"]').textContent = lang.navTutorials;
+            document.querySelector('a[href="pages/contact.html"]').textContent = lang.navContact;
+            
+            // Update hero section
+            const hero = document.querySelector('.hero');
+            if (hero) {
+                hero.querySelector('h2').textContent = lang.welcome;
+                hero.querySelector('p').textContent = lang.tagline;
+                hero.querySelector('.cta-button').textContent = lang.getStarted;
+            }
+            
+            // Update features section
+            const featuresSection = document.querySelector('#features');
+            if (featuresSection) {
+                featuresSection.querySelector('h2').textContent = lang.features;
+                
+                const featureCards = document.querySelectorAll('.feature-card');
+                if (featureCards.length >= 3) {
+                    featureCards[0].querySelector('h3').textContent = lang.premium;
+                    featureCards[0].querySelector('p').textContent = lang.premiumDesc;
+                    
+                    featureCards[1].querySelector('h3').textContent = lang.adfree;
+                    featureCards[1].querySelector('p').textContent = lang.adfreeDesc;
+                    
+                    featureCards[2].querySelector('h3').textContent = lang.updates;
+                    featureCards[2].querySelector('p').textContent = lang.updatesDesc;
+                }
+            }
+        }
+
+        // Initialize language buttons
+        function initLanguageSwitcher() {
+            const langButtons = document.querySelectorAll('.lang-btn');
+            
+            // Set active button
+            langButtons.forEach(btn => {
+                if (btn.dataset.lang === currentLang) {
+                    btn.classList.add('active');
+                }
+                
+                // Add click event
+                btn.addEventListener('click', () => {
+                    currentLang = btn.dataset.lang;
+                    localStorage.setItem('language', currentLang);
+                    
+                    // Update active button
+                    langButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    // Update content
+                    updateContent();
+                });
+            });
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Parallax effect for moon
+            document.addEventListener('mousemove', (e) => {
+                const moon = document.querySelector('.moon');
+                const x = (window.innerWidth / 2 - e.pageX) / 50;
+                const y = (window.innerHeight / 2 - e.pageY) / 50;
+                moon.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+            });
+
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // Initialize animations
+            const observerOptions = {
+                threshold: 0.1
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            // Observe all feature cards
+            document.querySelectorAll('.feature-card').forEach((card, index) => {
+                card.style.opacity = 0;
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = `opacity 0.5s ease ${index * 0.2}s, transform 0.5s ease ${index * 0.2}s`;
+                observer.observe(card);
+            });
+
+            // Initialize language switcher
+            initLanguageSwitcher();
+            updateContent();
+        });
+    </script>
+</body>
+</html>
