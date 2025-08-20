@@ -2,64 +2,105 @@
 require_once '../header.php';
 require_once '../config.php'; // Ensure database connection is available
 
-// Fetch apps from the database
-$apps_result = $conn->query("SELECT * FROM apps ORDER BY created_at DESC");
+// --- Backend Search & Filtering Logic ---
+$search_term = $_GET['search'] ?? '';
+$category = $_GET['category'] ?? 'all';
+
+$sql = "SELECT * FROM apps";
+$conditions = [];
+$params = [];
+$types = '';
+
+// Add search condition
+if (!empty($search_term)) {
+    $conditions[] = "(name LIKE ? OR description LIKE ?)";
+    $params[] = "%" . $search_term . "%";
+    $params[] = "%" . $search_term . "%";
+    $types .= 'ss';
+}
+
+// Add category condition
+if ($category !== 'all') {
+    $conditions[] = "category = ?";
+    $params[] = $category;
+    $types .= 's';
+}
+
+// Append conditions to the query
+if (!empty($conditions)) {
+    $sql .= " WHERE " . implode(' AND ', $conditions);
+}
+
+$sql .= " ORDER BY created_at DESC";
+
+// Prepare and execute the statement
+$stmt = $conn->prepare($sql);
+if (!empty($params)) {
+    $stmt->bind_param($types, ...$params);
+}
+$stmt->execute();
+$apps_result = $stmt->get_result();
+
 $apps_data = [];
 if ($apps_result) {
     while ($row = $apps_result->fetch_assoc()) {
         $apps_data[] = $row;
     }
 }
+// --- End of Backend Logic ---
 ?>
 <main class="main-content">
-        <div class="downloads-container">
-            <h2>Available Mods</h2>
+    <div class="downloads-container">
+        <h2>Available Mods</h2>
 
+        <form action="downloads.php" method="GET" class="search-and-filter">
             <div class="search-bar">
-                <input type="text" id="searchInput" placeholder="Search mods...">
+                <input type="text" name="search" id="searchInput" placeholder="Search mods..." value="<?php echo htmlspecialchars($search_term); ?>">
             </div>
 
             <div class="category-filter">
-                <button class="category-btn active" data-category="all">All</button>
-                <button class="category-btn" data-category="games">Games</button>
-                <button class="category-btn" data-category="apps">Apps</button>
-                <button class="category-btn" data-category="tools">Tools</button>
+                <button type="submit" name="category" value="all" class="category-btn <?php echo ($category === 'all') ? 'active' : ''; ?>">All</button>
+                <button type="submit" name="category" value="games" class="category-btn <?php echo ($category === 'games') ? 'active' : ''; ?>">Games</button>
+                <button type="submit" name="category" value="apps" class="category-btn <?php echo ($category === 'apps') ? 'active' : ''; ?>">Apps</button>
+                <button type="submit" name="category" value="tools" class="category-btn <?php echo ($category === 'tools') ? 'active' : ''; ?>">Tools</button>
             </div>
+        </form>
 
-            <div class="app-grid" id="appGrid">
-                <!-- Apps will be loaded here by JavaScript -->
-            </div>
+        <div class="app-grid" id="appGrid">
+            <!-- Apps will be loaded here by JavaScript -->
         </div>
-    </main>
+    </div>
+</main>
 
-    <footer>
-        <p>&copy; 2025 APK Modders. All rights reserved.</p>
-    </footer>
+<footer>
+    <p>&copy; 2025 APK Modders. All rights reserved.</p>
+</footer>
 
-    <script>
-        // Get app data from PHP
-        const apps = <?php echo json_encode($apps_data); ?>;
+<script>
+    // Get app data from PHP
+    const apps = <?php echo json_encode($apps_data); ?>;
 
-        // Initialize the page
-        document.addEventListener('DOMContentLoaded', () => {
-            displayApps(apps);
-            setupEventListeners();
-        });
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', () => {
+        displayApps(apps);
+        // The form submission now handles filtering, so the old JS event listeners are not needed for that.
+    });
 
-        // Display apps in the grid
-        function displayApps(appsToShow) {
-            const appGrid = document.getElementById('appGrid');
+    // Display apps in the grid (this function remains the same)
+    function displayApps(appsToShow) {
+        const appGrid = document.getElementById('appGrid');
 
-            if (appsToShow.length === 0) {
-                appGrid.innerHTML = '<div class="no-results">No mods found matching your search.</div>';
-                return;
-            }
+        if (appsToShow.length === 0) {
+            appGrid.innerHTML = '<div class="no-results">No mods found matching your search.</div>';
+            return;
+        }
 
-            appGrid.innerHTML = appsToShow.map(app => {
-                // Use a placeholder icon if icon_url is null
-                const iconDisplay = app.icon_url ? `<img src="${app.icon_url}" alt="${app.name}">` : '❓';
+        appGrid.innerHTML = appsToShow.map(app => {
+            const iconDisplay = app.icon_url ? `<img src="${app.icon_url}" alt="${app.name}">` : '❓';
+            const detailUrl = `app_details.php?id=${app.id}`;
 
-                return `
+            return `
+            <a href="${detailUrl}" class="app-card-link">
                 <div class="app-card" data-category="${app.category}">
                     <div class="app-image">${iconDisplay}</div>
                     <div class="app-info">
@@ -69,63 +110,34 @@ if ($apps_result) {
                             <span>${app.version}</span>
                             <span>${app.size}</span>
                         </div>
-                        <a href="${app.download_link}" class="download-btn" data-app-id="${app.id}">Download</a>
+                        <span class="download-btn-wrapper">
+                            <span class="download-btn" data-download-link="${app.download_link}">Download</span>
+                        </span>
                     </div>
                 </div>
-            `}).join('');
-        }
+            </a>
+        `}).join('');
 
-        // Setup event listeners
-        function setupEventListeners() {
-            // Search functionality
-            const searchInput = document.getElementById('searchInput');
-            searchInput.addEventListener('input', filterApps);
-
-            // Category filter buttons
-            const categoryBtns = document.querySelectorAll('.category-btn');
-            categoryBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    categoryBtns.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    filterApps();
-                });
-            });
-
-            // Download button click (optional: can add tracking or a confirmation)
-            document.addEventListener('click', (e) => {
-                if (e.target.classList.contains('download-btn')) {
-                    // The link will work directly, but we can prevent default and add a confirmation
-                    // e.preventDefault();
-                    // const appName = e.target.closest('.app-info').querySelector('h3').textContent;
-                    // if(confirm(`You are about to download ${appName}. Continue?`)) {
-                    //     window.location.href = e.target.href;
-                    // }
-                }
-            });
-        }
-
-        // Filter apps based on search and category
-        function filterApps() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const activeCategory = document.querySelector('.category-btn.active').getAttribute('data-category');
-
-            let filteredApps = [...apps];
-
-            // Filter by search term
-            if (searchTerm) {
-                filteredApps = filteredApps.filter(app =>
-                    app.name.toLowerCase().includes(searchTerm) ||
-                    (app.description && app.description.toLowerCase().includes(searchTerm))
-                );
+        // Add event listener to handle download button clicks separately
+        appGrid.addEventListener('click', function(event) {
+            if (event.target.classList.contains('download-btn')) {
+                event.preventDefault(); // Stop the link to the detail page from firing
+                event.stopPropagation(); // Stop event bubbling
+                const downloadLink = event.target.dataset.downloadLink;
+                window.location.href = downloadLink;
             }
+        });
+    }
 
-            // Filter by category
-            if (activeCategory !== 'all') {
-                filteredApps = filteredApps.filter(app => app.category === activeCategory);
-            }
-
-            displayApps(filteredApps);
-        }
-    </script>
+    // We can add a little JS to submit the form on search input change for a live search feel
+    const searchInput = document.getElementById('searchInput');
+    let debounceTimer;
+    searchInput.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            searchInput.form.submit();
+        }, 500); // 500ms delay
+    });
+</script>
 </body>
 </html>
