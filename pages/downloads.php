@@ -1,8 +1,20 @@
-<?php require_once '../header.php'; ?>
+<?php
+require_once '../header.php';
+require_once '../config.php'; // Ensure database connection is available
+
+// Fetch apps from the database
+$apps_result = $conn->query("SELECT * FROM apps ORDER BY created_at DESC");
+$apps_data = [];
+if ($apps_result) {
+    while ($row = $apps_result->fetch_assoc()) {
+        $apps_data[] = $row;
+    }
+}
+?>
 <main class="main-content">
         <div class="downloads-container">
             <h2>Available Mods</h2>
-            
+
             <div class="search-bar">
                 <input type="text" id="searchInput" placeholder="Search mods...">
             </div>
@@ -25,63 +37,8 @@
     </footer>
 
     <script>
-        // Sample app data
-        const apps = [
-            {
-                id: 1,
-                name: 'Game Mod 1',
-                version: 'v2.5.1',
-                size: '85 MB',
-                category: 'games',
-                icon: '🎮',
-                description: 'Unlimited coins and gems'
-            },
-            {
-                id: 2,
-                name: 'Premium App',
-                version: 'v3.1.0',
-                size: '45 MB',
-                category: 'apps',
-                icon: '📱',
-                description: 'All premium features unlocked'
-            },
-            {
-                id: 3,
-                name: 'Game Mod 2',
-                version: 'v1.8.3',
-                size: '120 MB',
-                category: 'games',
-                icon: '🎯',
-                description: 'Unlimited lives and boosters'
-            },
-            {
-                id: 4,
-                name: 'Tool Kit',
-                version: 'v5.2.0',
-                size: '30 MB',
-                category: 'tools',
-                icon: '🔧',
-                description: 'Essential tools for modding'
-            },
-            {
-                id: 5,
-                name: 'Streaming App',
-                version: 'v4.7.2',
-                size: '65 MB',
-                category: 'apps',
-                icon: '🎬',
-                description: 'Ad-free streaming experience'
-            },
-            {
-                id: 6,
-                name: 'Game Mod 3',
-                version: 'v2.0.0',
-                size: '210 MB',
-                category: 'games',
-                icon: '🏎️',
-                description: 'Unlimited money and cars'
-            }
-        ];
+        // Get app data from PHP
+        const apps = <?php echo json_encode($apps_data); ?>;
 
         // Initialize the page
         document.addEventListener('DOMContentLoaded', () => {
@@ -92,15 +49,19 @@
         // Display apps in the grid
         function displayApps(appsToShow) {
             const appGrid = document.getElementById('appGrid');
-            
+
             if (appsToShow.length === 0) {
                 appGrid.innerHTML = '<div class="no-results">No mods found matching your search.</div>';
                 return;
             }
 
-            appGrid.innerHTML = appsToShow.map(app => `
+            appGrid.innerHTML = appsToShow.map(app => {
+                // Use a placeholder icon if icon_url is null
+                const iconDisplay = app.icon_url ? `<img src="${app.icon_url}" alt="${app.name}">` : '❓';
+
+                return `
                 <div class="app-card" data-category="${app.category}">
-                    <div class="app-image">${app.icon}</div>
+                    <div class="app-image">${iconDisplay}</div>
                     <div class="app-info">
                         <h3>${app.name}</h3>
                         <p>${app.description}</p>
@@ -108,10 +69,10 @@
                             <span>${app.version}</span>
                             <span>${app.size}</span>
                         </div>
-                        <a href="#" class="download-btn" data-app-id="${app.id}">Download</a>
+                        <a href="${app.download_link}" class="download-btn" data-app-id="${app.id}">Download</a>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         // Setup event listeners
@@ -130,13 +91,15 @@
                 });
             });
 
-            // Download button click
+            // Download button click (optional: can add tracking or a confirmation)
             document.addEventListener('click', (e) => {
                 if (e.target.classList.contains('download-btn')) {
-                    e.preventDefault();
-                    const appId = e.target.getAttribute('data-app-id');
-                    alert(`Downloading app with ID: ${appId}`);
-                    // In a real app, you would handle the download here
+                    // The link will work directly, but we can prevent default and add a confirmation
+                    // e.preventDefault();
+                    // const appName = e.target.closest('.app-info').querySelector('h3').textContent;
+                    // if(confirm(`You are about to download ${appName}. Continue?`)) {
+                    //     window.location.href = e.target.href;
+                    // }
                 }
             });
         }
@@ -145,22 +108,22 @@
         function filterApps() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const activeCategory = document.querySelector('.category-btn.active').getAttribute('data-category');
-            
+
             let filteredApps = [...apps];
-            
+
             // Filter by search term
             if (searchTerm) {
-                filteredApps = filteredApps.filter(app => 
-                    app.name.toLowerCase().includes(searchTerm) || 
-                    app.description.toLowerCase().includes(searchTerm)
+                filteredApps = filteredApps.filter(app =>
+                    app.name.toLowerCase().includes(searchTerm) ||
+                    (app.description && app.description.toLowerCase().includes(searchTerm))
                 );
             }
-            
+
             // Filter by category
             if (activeCategory !== 'all') {
                 filteredApps = filteredApps.filter(app => app.category === activeCategory);
             }
-            
+
             displayApps(filteredApps);
         }
     </script>
