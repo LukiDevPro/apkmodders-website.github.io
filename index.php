@@ -1,5 +1,15 @@
 <?php
+require_once 'config.php'; // For database connection
 require_once 'header.php';
+
+// Fetch latest 6 apps from the database
+$latest_apps_result = $conn->query("SELECT * FROM apps ORDER BY created_at DESC LIMIT 6");
+$latest_apps = [];
+if ($latest_apps_result) {
+    while ($row = $latest_apps_result->fetch_assoc()) {
+        $latest_apps[] = $row;
+    }
+}
 ?>
 
     <!-- Main Content -->
@@ -7,24 +17,35 @@ require_once 'header.php';
         <section class="hero" id="home">
             <h2>Welcome to APK Modders</h2>
             <p>Your ultimate destination for modified APKs and game hacks</p>
-            <a href="#downloads" class="cta-button">Get Started</a>
+            <a href="pages/downloads.php" class="cta-button">Browse Mods</a>
         </section>
 
-        <section id="features">
-            <h2 style="text-align: center; margin-bottom: 2rem;">Our Features</h2>
-            <div class="features">
-                <div class="feature-card">
-                    <h3>Premium Unlocked</h3>
-                    <p>Access premium features for free with our modified APKs.</p>
-                </div>
-                <div class="feature-card">
-                    <h3>Ad-Free Experience</h3>
-                    <p>Enjoy your favorite apps without annoying advertisements.</p>
-                </div>
-                <div class="feature-card">
-                    <h3>Regular Updates</h3>
-                    <p>We keep our mods updated with the latest versions.</p>
-                </div>
+        <section id="latest-mods">
+            <h2 style="text-align: center; margin-bottom: 2rem;">Latest Mods</h2>
+            <div class="app-grid">
+                <?php if (!empty($latest_apps)): ?>
+                    <?php foreach ($latest_apps as $app): ?>
+                        <?php
+                            $detailUrl = "pages/app_details.php?id={$app['id']}";
+                            $iconDisplay = $app['icon_url'] ? '<img src="' . htmlspecialchars($app['icon_url']) . '" alt="' . htmlspecialchars($app['name']) . '">' : '❓';
+                        ?>
+                        <a href="<?php echo $detailUrl; ?>" class="app-card-link">
+                            <div class="app-card" data-category="<?php echo htmlspecialchars($app['category']); ?>">
+                                <div class="app-image"><?php echo $iconDisplay; ?></div>
+                                <div class="app-info">
+                                    <h3><?php echo htmlspecialchars($app['name']); ?></h3>
+                                    <p><?php echo htmlspecialchars($app['description']); ?></p>
+                                    <div class="app-meta">
+                                        <span><?php echo htmlspecialchars($app['version']); ?></span>
+                                        <span><?php echo htmlspecialchars($app['size']); ?></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p class="text-center">No mods available at the moment. Please check back later.</p>
+                <?php endif; ?>
             </div>
         </section>
     </main>
