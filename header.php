@@ -17,7 +17,7 @@ $base_path = $is_sub_page ? '../' : './';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>APK Modders</title>
-    <link rel="stylesheet" href="<?php echo $base_path; ?>styles.css">
+    <link rel="stylesheet" href="<?php echo $base_path; ?>styles.css?v=<?php echo time(); ?>">
 </head>
 <body>
     <div class="moon"></div>
@@ -30,6 +30,7 @@ $base_path = $is_sub_page ? '../' : './';
                     <li><a href="<?php echo $base_path; ?>index.php" class="active">Home</a></li>
                     <li><a href="#features">Features</a></li>
                     <li><a href="<?php echo $base_path; ?>pages/downloads.php">Downloads</a></li>
+                    <li><a href="<?php echo $base_path; ?>pages/news.php">News</a></li>
                     <li><a href="<?php echo $base_path; ?>pages/tutorials.php">Tutorials</a></li>
                     <li><a href="<?php echo $base_path; ?>pages/contact.php">Contact</a></li>
                 </ul>
