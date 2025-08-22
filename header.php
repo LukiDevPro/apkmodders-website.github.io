@@ -2,12 +2,9 @@
 require_once 'config.php';
 
 // Check for maintenance mode
-if ($maintenance_mode && !(isset($_SESSION['user_id']) && $_SESSION['is_admin'])) {
-    // Allow access to login page during maintenance
-    if (basename($_SERVER['PHP_SELF']) != 'login.php' && basename($_SERVER['PHP_SELF']) != 'register.php') {
-        include 'maintenance.php';
-        exit();
-    }
+if ($maintenance_mode) {
+    include 'maintenance.php';
+    exit();
 }
 
 // Determine base path for correct asset loading
@@ -37,10 +34,6 @@ $base_path = $is_sub_page ? '../' : './';
                     <li><a href="<?php echo $base_path; ?>pages/contact.php">Contact</a></li>
                 </ul>
             </nav>
-            <div class="auth-buttons">
-                <a href="<?php echo $base_path; ?>login.php" class="btn btn-login">Login</a>
-                <a href="<?php echo $base_path; ?>register.php" class="btn btn-register">Register</a>
-            </div>
             <div class="language-switcher">
                 <button class="lang-btn" data-lang="en">EN</button>
                 <button class="lang-btn" data-lang="de">DE</button>
